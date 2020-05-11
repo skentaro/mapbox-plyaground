@@ -1,6 +1,5 @@
 package com.example.mapbox_test
 
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -24,11 +23,11 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import com.mapbox.mapboxsdk.style.expressions.Expression.get
 
 
 private const val ICON_ID = "ICON_ID"
 private const val LAYER_ID = "LAYER_ID"
+private const val CIRCLE_LAYER_ID = "LAYER_ID_CIRCLE"
 private const val SOURCE_ID = "SOURCE_ID"
 private var mapView: MapView? = null
 
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(mapboxMap : MapboxMap){
-        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+        val symbolLayerFeatureList: MutableList<Feature> = ArrayList()
         var data:JSONObject = JSONObject()
 
         //get covid patients data
@@ -82,7 +81,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                             // save to source list
                             var featureJson = JsonObject()
                             featureJson.addProperty("patients", patients)
-                            symbolLayerIconFeatureList.add(
+                            symbolLayerFeatureList.add(
                                 Feature.fromGeometry(
                                     Point.fromLngLat(lng, lat), featureJson
                                 )
@@ -91,19 +90,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                         // setting the map style
                         mapboxMap.setStyle(Style.Builder().fromUri("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
-                            .withImage(ICON_ID, BitmapFactory.decodeResource(
-                                resources, R.drawable.red_marker))
                             .withSource(GeoJsonSource(SOURCE_ID,
-                                FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                                FeatureCollection.fromFeatures(symbolLayerFeatureList))
                             )
-                            .withLayer(CircleLayer("CIRCLE_LAYER", SOURCE_ID)
+                            .withLayer(CircleLayer(CIRCLE_LAYER_ID, SOURCE_ID)
                                 .withProperties(
-                                    circleColor(Color.WHITE),
+                                    circleColor(Color.LTGRAY),
                                     circleRadius(18f)
                                 ))
                             .withLayer(SymbolLayer(LAYER_ID, SOURCE_ID)
                                 .withProperties(
-                                    textField(Expression.toString(get("patients"))),
+                                    textField(Expression.toString(Expression.get("patients"))),
                                     textSize(12f),
                                     textColor(Color.RED),
                                     textIgnorePlacement(true),
